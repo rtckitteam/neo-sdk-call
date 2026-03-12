@@ -36,7 +36,7 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-        <activity android:name="cc.cicare.sdkcall.notifications.ui.ScreenCallActivity"
+        <activity android:name="cc.neo.sdkcall.notifications.ui.ScreenCallActivity"
             android:launchMode="singleTop"
             android:showWhenLocked="true"
             android:exported="false" />
@@ -49,10 +49,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name="cc.cicare.sdkcall.services.IncomingCallService"
+        <service android:name="cc.neo.sdkcall.services.IncomingCallService"
             android:exported="false"
             android:foregroundServiceType="phoneCall"/>
-        <service android:name="cc.cicare.sdkcall.services.CiCareCallService"
+        <service android:name="cc.neo.sdkcall.services.NeoCallService"
             android:foregroundServiceType="microphone|phoneCall"
             android:exported="false"/>
     </application>

@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "cc.cicare.app"
+    namespace = "cc.neo.app"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "cc.cicare.app"
+        applicationId = "cc.neo.app"
         minSdk = 23
         targetSdk = 35
         versionCode = 1
@@ -65,7 +65,7 @@ dependencies {
     implementation(libs.firebase.messaging)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
-    //implementation("com.github.cicareteam:cicare-sdk-rtc:1.2.1-rc.6")
+    //implementation("com.github.neoteam:neo-sdk-rtc:1.2.1-rc.6")
     implementation(project(":sdkcall"))
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)

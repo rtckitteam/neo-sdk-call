@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "cc.cicare.sdkcall"
+    namespace = "cc.neo.sdkcall"
     version = "1.2.1-rc.7"
     compileSdk = 35
 
@@ -77,8 +77,8 @@ afterEvaluate {
     publishing {
         publications {
             create<MavenPublication>("release") {
-                groupId = "com.github.cicareteam"
-                artifactId = "cicare-sdk-rtc"
+                groupId = "com.github.neoteam"
+                artifactId = "neo-sdk-rtc"
                 version = "1.2.1-rc.7"
                 from(components["release"])
             }
