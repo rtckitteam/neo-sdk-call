@@ -78,7 +78,7 @@ afterEvaluate {
         publications {
             create<MavenPublication>("release") {
                 groupId = "com.github.rtckitteam"
-                artifactId = "neo-sdk-rtc"
+                artifactId = "neo-sdk-call"
                 version = "1.2.1-rc.8"
                 from(components["release"])
             }
