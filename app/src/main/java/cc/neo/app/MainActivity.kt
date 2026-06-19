@@ -122,7 +122,7 @@ class MainActivity : ComponentActivity(), CallEventListener {
         val uri = Uri.parse("android.resource://${this.packageName}/${cc.neo.sdkcall.R.raw.miremix}")
 
         NeoSdkCall.setRingTone(uri)
-        NeoSdkCall.setNotificationIcon(R.drawable.ic_neocall_notification)
+//        NeoSdkCall.setNotificationIcon(R.drawable.ic_neocall_notification)
 
         enableEdgeToEdge()
 
