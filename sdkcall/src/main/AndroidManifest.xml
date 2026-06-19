@@ -8,4 +8,5 @@
             android:name=".notifications.ui.ScreenCallActivity"
             android:exported="false" />
     </application>
+    
 </manifest>

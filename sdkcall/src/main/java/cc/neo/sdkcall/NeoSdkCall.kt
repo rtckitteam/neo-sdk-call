@@ -48,6 +48,12 @@ object NeoSdkCall {
         CallNotificationManager.ringtoneUrl = ringTone
     }
 
+    var notificationIcon: Int? = null
+
+    fun setNotificationIcon(iconRes: Int) {
+        notificationIcon = iconRes
+    }
+
     fun setEventListener(eventListener: CallEventListener) {
         MessageListenerHolder.callEventListener = eventListener
     }

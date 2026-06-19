@@ -53,86 +53,65 @@ fun DialPad(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-        ) {
-            Text(
-                text = if (input.isEmpty()) " " else input,
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Medium,
-                letterSpacing = 2.sp,
+        if (input.isNotEmpty()) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(vertical = 16.dp),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1
-            )
-            IconButton(
-                onClick = {
-                    if (input.isNotEmpty()) {
-                        input = input.dropLast(1)
-                    }
-                },
-                modifier = Modifier
-                    .size(56.dp)
-                    .pointerInput(Unit) {
-                        detectTapGestures(
-                            onLongPress = { input = "" } // clear all
-                        )
-                    }
+                    .fillMaxWidth()
+                    .padding(bottom = 4.dp)
             ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Backspace,
-                    contentDescription = "Delete"
+                Text(
+                    text = input,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 2.sp,
+                    textAlign = TextAlign.Center,
+                    color = androidx.compose.ui.graphics.Color.White,
+                    maxLines = 1
                 )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        /* ===== DIALPAD GRID ===== */
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
-            userScrollEnabled = false,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            items(keys) { key ->
-                DialPadButton(
-                    text = key,
-                    onClick = {
-                        input += key
-                        onKeyPress(key)
-                        dtmfPlayer.play(key)
-                    }
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        /* ===== DELETE BUTTON ===== */
-        IconButton(
-            onClick = {
-                if (input.isNotEmpty()) {
-                    input = input.dropLast(1)
-                }
-            },
-            modifier = Modifier
-                .size(56.dp)
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onLongPress = { input = "" } // clear all
+                Spacer(modifier = Modifier.width(8.dp))
+                IconButton(
+                    onClick = { input = input.dropLast(1) },
+                    modifier = Modifier
+                        .size(32.dp)
+                        .pointerInput(Unit) {
+                            detectTapGestures(onLongPress = { input = "" })
+                        }
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.Backspace,
+                        contentDescription = "Delete",
+                        tint = androidx.compose.ui.graphics.Color.White,
+                        modifier = Modifier.size(18.dp)
                     )
                 }
+            }
+        }
+
+        /* ===== DIALPAD GRID ===== */
+        Column(
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Icon(
-                imageVector = Icons.Outlined.ArrowDownward,
-                contentDescription = "Hide"
-            )
+            val rows = keys.chunked(3)
+            for (row in rows) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    for (key in row) {
+                        DialPadButton(
+                            text = key,
+                            modifier = Modifier.weight(1f),
+                            onClick = {
+                                input += key
+                                onKeyPress(key)
+                                dtmfPlayer.play(key)
+                            }
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -140,21 +119,23 @@ fun DialPad(
 @Composable
 private fun DialPadButton(
     text: String,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .padding(10.dp)
-            .aspectRatio(1f)
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+        modifier = modifier
+            .padding(4.dp)
+            .height(48.dp)
+            .clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
+            .background(androidx.compose.ui.graphics.Color.White.copy(alpha = 0.15f))
             .clickable { onClick() }
     ) {
         Text(
             text = text,
-            fontSize = 26.sp,
-            fontWeight = FontWeight.Medium
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Medium,
+            color = androidx.compose.ui.graphics.Color.White
         )
     }
 }

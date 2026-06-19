@@ -47,11 +47,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.automirrored.outlined.VolumeUp
+import androidx.compose.material.icons.filled.CallEnd
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Dialpad
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.filled.MicOff
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
@@ -745,12 +749,12 @@ class ScreenCallActivity :
         setContent {
             val callStatusRaw by viewModel.callStatusRaw.collectAsState()
             Box(modifier = Modifier.fillMaxSize()) {
+                val timerText = if (callStatusRaw == "connected") formatElapsedTime(timeTicker) else ""
                 CallScreen(
                     callerName = if (callType == "incoming") callerName else calleeName,
-                    callTimer = if
-                                        (callStatusRaw == "connected") formatElapsedTime(timeTicker)
-                    else metaData["call_$callStatusRaw"] ?: callStatusRaw,
+                    callTimer = timerText,
                     callStatusRaw = callStatusRaw,
+                    statusText = (metaData["call_$callStatusRaw"] ?: callStatusRaw).toString(),
                     signalState = if (connectionState == "connected") "" else connectionState,
                     avatarUrl = if (callType == "incoming") callerAvatar else calleeAvatar,
                     isMicMuted,
@@ -924,8 +928,9 @@ class ScreenCallActivity :
 @Composable
 fun CallScreen(
     callerName: String,
-    callTimer: Any,
+    callTimer: String,
     callStatusRaw: String,
+    statusText: String,
     signalState: String,
     avatarUrl: String,
     isMicMuted: Boolean,
@@ -956,135 +961,158 @@ fun CallScreen(
             MultiLayerGradientBackground()
 
             Column(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Spacer(modifier = Modifier.height(20.dp))
-                    Text(
-                        text = metaData["call_title"] ?: "Free Call",
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-
-                    Spacer(modifier = Modifier.height(60.dp))
-                }
-
-                // Avatar
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-
-                        Text(text = callTimer as String, style = MaterialTheme.typography.bodyLarge)
-                        Spacer(modifier = Modifier.height(55.dp))
-                        CallAvatar(avatarUrl)
-                        Spacer(modifier = Modifier.height(35.dp))
-
-                        Text(text = if (metaData["call_name_title"]?.isBlank() == true)
-                            callerName else metaData["call_name_title"] ?: callerName, style = MaterialTheme.typography.headlineSmall)
-                        Spacer(modifier = Modifier.height(15.dp))
-                        Text(
-                            text = metaData[signalState] ?: signalState, // ->status network
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Red
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(10.dp))
-
-                //
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                      modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 32.dp, vertical = 15.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RoundIconButton(
-                        icon = if (isSpeakerOn) Icons.AutoMirrored.Filled.VolumeUp else {
-                            if (isOnBluetooth) SpeakerBluetooth
-                            else Icons.AutoMirrored.Outlined.VolumeUp
-                        },
-                        label = metaData["call_btn_speaker"] ?: "Speaker",
-                        onClick = onSpeakerClick,
-                        backgroundColor = if (isSpeakerOn) Color(0xFF00BABD) else Color(0xFFE9F8F9),
-                        iconTint = if (isSpeakerOn) Color.White else Color(0xFF17666A),
-                        enabled = callStatusRaw.lowercase() != "ended"
-                    )
-
-                    RoundIconButton(
-                        icon = Icons.Filled.Dialpad,
-                        label = metaData["call_numpad"] ?: "Numpad",
-                        onClick = { showDialPad = true },
-                        backgroundColor = Color(0xFFE9F8F9),
-                        iconTint = Color(0xFF17666A),
-                        enabled = callStatusRaw.lowercase() == "connected"
-                    )
-
-                    RoundIconButton(
-                        icon = Icons.Default.MicOff,
-                        label = metaData["call_btn_mute"] ?: "Mute",
-                        onClick = onMuteClick,
-                        backgroundColor = if (isMicMuted) Color(0xFF00BABD) else Color(0xFFE9F8F9),
-                        iconTint = if (isMicMuted) Color.White else Color(0xFF17666A),
-                        enabled = callStatusRaw.lowercase() == "connected"
-                    )
-
-    //                if (callStatusRaw.lowercase() == "incoming") {
-    //                    RoundIconButton(
-    //                        icon = Icons.AutoMirrored.Outlined.Chat,
-    //                        label = metaData["call_btn_message"] ?: "Message",
-    //                        onClick = onMessageClick,
-    //                        backgroundColor = Color(0xFFE9F8F9),
-    //                        iconTint = Color(0xFF17666A),
-    //                    )
-    //                }
-                }
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 55.dp)
-                ) {
-
-                    RoundIconButton(
-                        icon = Icons.Filled.Close,
-                        label = "",
-                        onClick = onEndCallClick,
-                        backgroundColor = Color.Red,
-                        iconTint = Color.White,
-                        enabled = callStatusRaw.lowercase() != "ended"
-                    )
-                    if (callStatusRaw.lowercase() == "incoming") {
-                        Spacer(modifier = Modifier.width(160.dp))
-                        RoundIconButton(
-                            icon = Icons.Default.Phone,
-                            label = "",
-                            onClick = onAnswerCallClick,
-                            backgroundColor = Color.Green,
-                            iconTint = Color.White,
-                        )
-                    }
-                }
-            }
-            AnimatedVisibility (
-                visible = showDialPad,
-                enter = slideInVertically { it } + fadeIn(),
-                exit = slideOutVertically { it } + fadeOut(),
                 modifier = Modifier
-                    .fillMaxWidth().zIndex(2f).align(Alignment.BottomCenter)
+                    .padding(padding)
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.SpaceBetween,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
-                Surface(tonalElevation = 8.dp) {
-                    DialPad(
-                        onKeyPress = { digit ->
-                            onNumpadClick(digit)
-                        }
+                // Top section (Status)
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Spacer(modifier = Modifier.height(40.dp))
+                    Text(
+                        text = statusText,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White
                     )
+                }
+
+                // Middle section (Avatar, Name, Timer, Info Card)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 26.dp)
+                ) {
+                    if (callTimer.isNotBlank()) {
+                        Text(
+                            text = callTimer,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Color.White
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+
+                    if (showDialPad) {
+                        cc.neo.sdkcall.ui.DialPad(
+                            onKeyPress = { digit ->
+                                onNumpadClick(digit)
+                            }
+                        )
+                    } else {
+                        CallAvatar(avatarUrl)
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        Text(
+                            text = if (metaData["call_name_title"]?.isBlank() == true) callerName else metaData["call_name_title"] ?: callerName,
+                            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
+                            color = Color.White
+                        )
+                    }
+
+
+
+                    if (signalState.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = metaData[signalState] ?: signalState,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color(0xFFFFB3B3)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Info Card
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(androidx.compose.foundation.shape.RoundedCornerShape(16.dp))
+                            .background(Color.White.copy(alpha = 0.15f))
+                            .padding(16.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.Top) {
+                            Icon(
+                                imageVector = Icons.Outlined.Info,
+                                contentDescription = "Info",
+                                tint = Color.White,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = "Pastikan perangkat kamu terhubung dengan jaringan internet yang stabil untuk melakukan panggilan ini",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.White
+                            )
+                        }
+                    }
+                }
+
+                // Bottom section (Buttons)
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 15.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RoundIconButton(
+                            icon = Icons.Filled.Dialpad,
+                            label = metaData["call_numpad"] ?: "Keypad",
+                            onClick = { showDialPad = !showDialPad },
+                            backgroundColor = if (showDialPad) Color.Red else Color.White.copy(alpha = 0.2f),
+                            iconTint = Color.White,
+                            enabled = callStatusRaw.lowercase() == "connected"
+                        )
+
+                        RoundIconButton(
+                            icon = if (isSpeakerOn) Icons.AutoMirrored.Filled.VolumeUp else {
+                                if (isOnBluetooth) SpeakerBluetooth
+                                else Icons.AutoMirrored.Outlined.VolumeUp
+                            },
+                            label = metaData["call_btn_speaker"] ?: "Speaker",
+                            onClick = onSpeakerClick,
+                            backgroundColor = if (isSpeakerOn) Color.Red else Color.White.copy(alpha = 0.2f),
+                            iconTint = Color.White,
+                            enabled = callStatusRaw.lowercase() != "ended"
+                        )
+
+                        RoundIconButton(
+                            icon = Icons.Default.MicOff,
+                            label = metaData["call_btn_mute"] ?: "Mute",
+                            onClick = onMuteClick,
+                            backgroundColor = if (isMicMuted) Color.Red else Color.White.copy(alpha = 0.2f),
+                            iconTint = Color.White,
+                            enabled = callStatusRaw.lowercase() == "connected"
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 40.dp)
+                    ) {
+                        RoundIconButton(
+                            icon = Icons.Filled.CallEnd,
+                            label = metaData["call_end"] ?: "Akhiri Panggilan",
+                            onClick = onEndCallClick,
+                            backgroundColor = Color.Red,
+                            iconTint = Color.White,
+                            enabled = callStatusRaw.lowercase() != "ended"
+                        )
+
+                        if (callStatusRaw.lowercase() == "incoming") {
+                            Spacer(modifier = Modifier.width(60.dp))
+                            RoundIconButton(
+                                icon = Icons.Default.Phone,
+                                label = metaData["answer"] ?: "Terima",
+                                onClick = onAnswerCallClick,
+                                backgroundColor = Color.Green,
+                                iconTint = Color.White,
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -1096,52 +1124,15 @@ fun MultiLayerGradientBackground(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .fillMaxSize()
-    ) {
-        // Layer 3: Base horizontal gradient (270deg)
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .background(
-                    brush = Brush.horizontalGradient(
-                        colorStops = arrayOf(
-                            0.0f to Color(0xFFFFF4DF), // Left becomes #FFF4DF
-                            0.5f to Color(0xFFFFFFFF),
-                            1.0f to Color(0xFFDAFFFF)  // Right becomes #DAFFFF
-                        )
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFFD30E0E), // Top: Bright Red
+                        Color(0xFF260000)  // Bottom: Dark Red/Black
                     )
                 )
-        )
-
-        // Layer 2: Vertical fade (180deg)
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .background(
-                    brush = Brush.verticalGradient(
-                        colorStops = arrayOf(
-                            0.3167f to Color(0x00F6F6F6), // transparent
-                            1.0f to Color(0xFFF6F6F6)
-                        )
-                    )
-                )
-        )
-
-        // Layer 1: Diagonal fade (224.7deg ≈ ~45° flip)
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .background(
-                    brush = Brush.linearGradient(
-                        colorStops = arrayOf(
-                            0.3943f to Color(0x00DFEFFF), // transparent
-                            1.0f to Color(0xFFEBFFFF)
-                        ),
-                        start = Offset.Infinite,
-                        end = Offset.Zero
-                    )
-                )
-        )
-    }
+            )
+    )
 }
 
 @Composable
@@ -1186,7 +1177,7 @@ fun RoundIconButton(
 ) {
     val actualBackground = if (enabled) backgroundColor else backgroundColor.copy(alpha = 0.4f)
     val actualTint = if (enabled) iconTint else iconTint.copy(alpha = 0.6f)
-    val textColor = Color(0XFF7F7F7F)
+    val textColor = Color.White
     val actualText = if (enabled) textColor else textColor.copy(alpha = 0.6f)
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -1232,22 +1223,23 @@ fun DefaultPreview() {
         "phone_speaker" to "Phone Speaker",
     )
     Box(modifier = Modifier.fillMaxSize()) {
-    CallScreen(
-        "Driver Andhi",
-        "",
-        "connected",
-        signalState = "call_lost_connection",
-        "",
-        isMicMuted = true,
-        isSpeakerOn = false,
-        isOnBluetooth = true,
-        metaData = metaData.mapKeys { it.key.toString() }.mapValues { it.value.toString() },
-        onMuteClick = {},
-        onEndCallClick = {},
-        onAnswerCallClick = {},
-        onSpeakerClick = {},
-        onNumpadClick = {}
-    )
+        CallScreen(
+            "Driver Andhi",
+            "00:23",
+            "connected",
+            "Terhubung",
+            signalState = "call_lost_connection",
+            "",
+            isMicMuted = true,
+            isSpeakerOn = false,
+            isOnBluetooth = true,
+            metaData = metaData.mapKeys { it.key.toString() }.mapValues { it.value.toString() },
+            onMuteClick = {},
+            onEndCallClick = {},
+            onAnswerCallClick = {},
+            onSpeakerClick = {},
+            onNumpadClick = {}
+        )
         ErrorAlertDialog(
             showDialog = false,
             onDismiss = {

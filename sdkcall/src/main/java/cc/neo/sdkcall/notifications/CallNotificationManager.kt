@@ -93,7 +93,7 @@ object CallNotificationManager {
 
         return NotificationCompat.Builder(context, channelId)
             .setFullScreenIntent(screenCallIntent(context, intent, "INCOMING"), true)
-            .setSmallIcon(NeoCallService.INCOMING_CALL_ICON)
+            .setSmallIcon(cc.neo.sdkcall.NeoSdkCall.notificationIcon ?: NeoCallService.INCOMING_CALL_ICON)
             .setSound(ringtoneUrl, AudioManager.STREAM_NOTIFICATION)
             .setVibrate(longArrayOf(0, 500, 1000, 500, 1000))
             .addPerson(callerProfile)
@@ -128,7 +128,7 @@ object CallNotificationManager {
 
         return NotificationCompat.Builder(context, channelId)
             .setFullScreenIntent(screenCallIntent(context, intent, "SCREEN"), true)
-            .setSmallIcon(NeoCallService.OUTGOING_CALL_ICON)
+            .setSmallIcon(cc.neo.sdkcall.NeoSdkCall.notificationIcon ?: NeoCallService.OUTGOING_CALL_ICON)
             //.setSound(NeoCallService.ringtoneUrl, AudioManager.STREAM_VOICE_CALL)
             .addPerson(callerProfile)
             .setPriority(NotificationCompat.PRIORITY_LOW)
@@ -157,7 +157,7 @@ object CallNotificationManager {
 
         return NotificationCompat.Builder(context, channelId)
             .setFullScreenIntent(screenCallIntent(context, intent, "SCREEN"), true)
-            .setSmallIcon(NeoCallService.ONGOING_CALL_ICON)
+            .setSmallIcon(cc.neo.sdkcall.NeoSdkCall.notificationIcon ?: NeoCallService.ONGOING_CALL_ICON)
             //.setSound(NeoCallService.ringtoneUrl, AudioManager.STREAM_VOICE_CALL)
             .addPerson(callerProfile)
             .setWhen(System.currentTimeMillis())
@@ -187,7 +187,7 @@ object CallNotificationManager {
             .build()
 
         return NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(NeoCallService.MISSED_CALL_ICON)
+            .setSmallIcon(cc.neo.sdkcall.NeoSdkCall.notificationIcon ?: NeoCallService.MISSED_CALL_ICON)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .addPerson(callerProfile)
             .setContentTitle(calleeName)
