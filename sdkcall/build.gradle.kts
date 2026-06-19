@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "cc.neo.sdkcall"
-    version = "1.2.1-rc.12"
+    version = "1.2.1-rc.13"
     compileSdk = 35
 
     defaultConfig {
@@ -80,7 +80,7 @@ afterEvaluate {
             create<MavenPublication>("release") {
                 groupId = "com.github.rtckitteam"
                 artifactId = "neo-sdk-call"
-                version = "1.2.1-rc.12"
+                version = "1.2.1-rc.13"
                 from(components["release"])
             }
         }
