@@ -80,7 +80,8 @@ afterEvaluate {
             create<MavenPublication>("release") {
                 groupId = "com.github.rtckitteam"
                 artifactId = "neo-sdk-call"
-                version = "1.2.1-rc.13"
+//                version = "1.2.1-rc.13"
+                version = project.version.toString()
                 from(components["release"])
             }
         }
