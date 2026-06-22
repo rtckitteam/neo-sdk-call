@@ -35,6 +35,9 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import cc.neo.sdkcall.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -162,12 +165,13 @@ class ScreenCallActivity :
         "call_connecting" to "Connecting...",
         "call_ringing" to "Ringing...",
         "call_refused" to "Decline",
-        "call_end" to "End Call",
+        "call_end" to "Akhiri Panggilan",
         "call_incoming" to "Incoming",
         "call_temporarily_unavailable" to "Currently unreachable",
         "call_lost_connection" to "Connection lost",
         "call_weak_signal" to "Weak Signal",
-        //"call_name_title" to "Xanh SM Customer",
+        "call_connected" to "Terhubung",
+        "call_name_title" to "Call INA",
         "call_btn_message" to "Send Message",
         "call_btn_mute" to "Mute",
         "call_btn_speaker" to "Speaker",
@@ -983,14 +987,7 @@ fun CallScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 26.dp)
                 ) {
-                    if (callTimer.isNotBlank()) {
-                        Text(
-                            text = callTimer,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = Color.White
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                    }
+
 
                     if (showDialPad) {
                         cc.neo.sdkcall.ui.DialPad(
@@ -1010,15 +1007,23 @@ fun CallScreen(
                     }
 
 
-
+                    if (callTimer.isNotBlank()) {
+                        Text(
+                            text = callTimer,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Color.White
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
                     if (signalState.isNotBlank()) {
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = metaData[signalState] ?: signalState,
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color(0xFFFFB3B3)
                         )
                     }
+
 
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -1146,11 +1151,11 @@ fun CallAvatar(imageUrl: String?) {
                 .background(Color.LightGray),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = Icons.Default.Person,
+            Image(
+                painter = painterResource(id = R.drawable.vector),
                 contentDescription = "Default Avatar",
-                tint = Color.White,
-                modifier = Modifier.size(80.dp)
+                modifier = Modifier.size(160.dp),
+                contentScale = androidx.compose.ui.layout.ContentScale.Crop
             )
         }
     } else {
@@ -1183,7 +1188,7 @@ fun RoundIconButton(
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
             modifier = Modifier
-                .size(64.dp)
+                .size(68.dp)
                 .clip(CircleShape)
                 .background(actualBackground)
                 .let {
@@ -1191,7 +1196,8 @@ fun RoundIconButton(
                 },
             contentAlignment = Alignment.Center
         ) {
-            Icon(imageVector = icon, contentDescription = label, tint = actualTint)
+            Icon(imageVector = icon, contentDescription = label, tint = actualTint,
+                modifier = Modifier.size(32.dp))
         }
 
         if (label.isNotBlank()) {
@@ -1213,7 +1219,7 @@ fun DefaultPreview() {
         "initializing" to "Initializing",
         "call_title" to "Telpone gratis",
         "ringing" to "Ringing",
-        "connected" to "Connected",
+        "connected" to "Terhubung",
         "ended" to "Ended",
         "answer" to "Answer",
         "decline" to "Decline",
@@ -1224,7 +1230,7 @@ fun DefaultPreview() {
     )
     Box(modifier = Modifier.fillMaxSize()) {
         CallScreen(
-            "Driver Andhi",
+            "Call INA",
             "00:23",
             "connected",
             "Terhubung",

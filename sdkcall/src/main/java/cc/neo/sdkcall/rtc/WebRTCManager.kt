@@ -245,7 +245,18 @@ class WebRTCManager(
             Log.e("AudioConfig", "AudioManager is null. Cannot configure audio output.")
             return
         }
-        audioManager.mode = AudioManager.MODE_NORMAL
+        
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                audioManager.clearCommunicationDevice()
+            } else {
+                audioManager.isSpeakerphoneOn = false
+            }
+            audioManager.mode = AudioManager.MODE_NORMAL
+            Log.d("AudioConfig", "Audio output reset to normal.")
+        } catch (e: Exception) {
+            Log.e("AudioConfig", "Error resetting audio output: ${e.message}")
+        }
     }
 
     @Suppress("DEPRECATION")
@@ -277,11 +288,24 @@ class WebRTCManager(
                         Log.d("AudioConfig", "Using deprecated isSpeakerphoneOn for speaker enable as fallback.")
                     }
                 } else {
-                    audioManager.clearCommunicationDevice()
-                    Log.d("AudioConfig", "Communication device cleared (speaker disabled).")
+                    val earpieceDevice = audioManager.availableCommunicationDevices.firstOrNull {
+                        it.type == AudioDeviceInfo.TYPE_BUILTIN_EARPIECE
+                    }
+                    if (earpieceDevice != null) {
+                        val result = audioManager.setCommunicationDevice(earpieceDevice)
+                        if (result) {
+                            Log.d("AudioConfig", "Successfully set communication device to earpiece.")
+                        } else {
+                            Log.e("AudioConfig", "Failed to set communication device to earpiece.")
+                            audioManager.clearCommunicationDevice()
+                        }
+                    } else {
+                        audioManager.clearCommunicationDevice()
+                        Log.d("AudioConfig", "Earpiece not found. Communication device cleared.")
+                    }
                 }
             } else {
-                audioManager.mode = AudioManager.MODE_IN_CALL
+                audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
                 audioManager.isSpeakerphoneOn = enabled
             }
             Log.d("AudioConfig", "Audio output for communication updated. Speaker enabled: $enabled")
