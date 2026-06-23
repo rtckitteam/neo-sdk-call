@@ -33,8 +33,8 @@ interface ApiService {
 object ApiClient {
     private const val BASE_URL = "https://sip-gw.c-icare.cc:4443/" // untuk emulator Android
 //    private const val BASE_URL ="https://sdk-gateway.neokarya.co.id/"
-    // private const val AUTH_TOKEN =
-    // "xHNYBNtmnckl8GJXQoBSMQTz8oJsa3j5zKk5FK00Y5uOXGzwXcot7u5WM8gIpV8dFQsLNaaozMt8k3Y1fTSSxQyzOAMeuFPIzPNqJhk0GDvjHGkBBkeqZNFU5UlRF4aj" // Ganti dengan token dinamis jika perlu
+     private const val AUTH_TOKEN =
+     "xHNYBNtmnckl8GJXQoBSMQTz8oJsa3j5zKk5FK00Y5uOXGzwXcot7u5WM8gIpV8dFQsLNaaozMt8k3Y1fTSSxQyzOAMeuFPIzPNqJhk0GDvjHGkBBkeqZNFU5UlRF4aj" // Ganti dengan token dinamis jika perlu
 
     val api: ApiService by lazy {
         val logging = HttpLoggingInterceptor().apply { setLevel(HttpLoggingInterceptor.Level.BODY) }

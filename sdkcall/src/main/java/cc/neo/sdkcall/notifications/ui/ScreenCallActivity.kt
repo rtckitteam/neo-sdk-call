@@ -161,14 +161,14 @@ class ScreenCallActivity :
     private var metaData: HashMap<*, *> = hashMapOf(
         "call_title" to "Free Call",
         "call_busy" to "The customer is busy and cannot be reached",
-        "call_calling" to "Calling...",
-        "call_connecting" to "Connecting...",
+        "call_calling" to "Menghubungi...",
+        "call_connecting" to "Menghubungkan...",
         "call_ringing" to "Ringing...",
         "call_refused" to "Decline",
         "call_end" to "Akhiri Panggilan",
         "call_incoming" to "Incoming",
         "call_temporarily_unavailable" to "Currently unreachable",
-        "call_lost_connection" to "Connection lost",
+//        "call_lost_connection" to "Connection lost",
         "call_weak_signal" to "Weak Signal",
         "call_connected" to "Terhubung",
         "call_name_title" to "Call INA",
@@ -1188,7 +1188,7 @@ fun RoundIconButton(
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
             modifier = Modifier
-                .size(68.dp)
+                .size(74.dp)
                 .clip(CircleShape)
                 .background(actualBackground)
                 .let {
@@ -1197,7 +1197,7 @@ fun RoundIconButton(
             contentAlignment = Alignment.Center
         ) {
             Icon(imageVector = icon, contentDescription = label, tint = actualTint,
-                modifier = Modifier.size(32.dp))
+                modifier = Modifier.size(36.dp))
         }
 
         if (label.isNotBlank()) {

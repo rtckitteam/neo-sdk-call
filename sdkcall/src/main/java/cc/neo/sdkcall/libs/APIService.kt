@@ -11,33 +11,32 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 
 data class CallRequest(
-    val callerId: String,
-    val callerName: String,
-    val callerAvatar: String,
-    val calleeId: String,
-    val calleeName: String,
-    val calleeAvatar: String,
-    val checkSum: String,
+    @SerializedName("callerId") val callerId: String,
+    @SerializedName("callerName") val callerName: String,
+    @SerializedName("callerAvatar") val callerAvatar: String,
+    @SerializedName("calleeId") val calleeId: String,
+    @SerializedName("calleeName") val calleeName: String,
+    @SerializedName("calleeAvatar") val calleeAvatar: String,
+    @SerializedName("checkSum") val checkSum: String,
 )
 
 data class CallSipRequest(
-    val callerId: String,
-    val callerName: String,
-    val callerAvatar: String,
-    val destination: String,
+    @SerializedName("callerId") val callerId: String,
+    @SerializedName("callerName") val callerName: String,
+    @SerializedName("callerAvatar") val callerAvatar: String,
+    @SerializedName("destination") val destination: String,
 )
 
 data class CallResponse(
-    @SerializedName("token")
-    val token: String,
-    val callee: String,
-    val server: String
+    @SerializedName("token") val token: String,
+    @SerializedName("callee") val callee: String,
+    @SerializedName("server") val server: String
 )
 
 data class Error(
-    val code: Int,
-    val message: String,
-    val details: Any? = null
+    @SerializedName("code") val code: Int,
+    @SerializedName("message") val message: String,
+    @SerializedName("details") val details: Any? = null
 )
 
 sealed class CallResult {
