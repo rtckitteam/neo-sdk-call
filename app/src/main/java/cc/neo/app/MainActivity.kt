@@ -116,8 +116,10 @@ class MainActivity : ComponentActivity(), CallEventListener {
         }
 
 
-        NeoSdkCall.setAPI("https://sdk-gateway.c-icare.cc",
-            "da57cceb27dda58f263c7b31d370e5350cf23afd5140f0fc9f2fe76713c1b562.3b84ad65bc5368c494d59c58fdca6a0971ad3d2453ad4f55f45ddd17")
+//        NeoSdkCall.setAPI("https://sdk-gateway.c-icare.cc",
+//            "da57cceb27dda58f263c7b31d370e5350cf23afd5140f0fc9f2fe76713c1b562.3b84ad65bc5368c494d59c58fdca6a0971ad3d2453ad4f55f45ddd17")
+        NeoSdkCall.setAPI("https://sdk-gateway.neokarya.co.id/", "da57cceb27dda58f263c7b31d370e5350cf23afd5140f0fc9f2fe76713c1b562.3b84ad65bc5368c494d59c58fdca6a0971ad3d2453ad4f55f45ddd17")
+
 
         val uri = Uri.parse("android.resource://${this.packageName}/${cc.neo.sdkcall.R.raw.miremix}")
 

@@ -19,3 +19,20 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Keep Sample App classes to prevent Retrofit/Gson crashes in the sample app itself
+-keep class cc.neo.app.** { *; }
+
+# Retrofit & Gson explicit rules for the app module
+-keepattributes Signature
+-keepattributes Exceptions
+-keepattributes *Annotation*
+-keep class retrofit2.** { *; }
+-dontwarn retrofit2.**
+-keepclasseswithmembers interface * {
+    @retrofit2.http.* <methods>;
+}
+-keep class kotlin.coroutines.Continuation
+-keepclassmembers class * {
+    @com.google.gson.annotations.SerializedName <fields>;
+}

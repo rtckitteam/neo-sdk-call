@@ -1,21 +1,33 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# ProGuard rules that are applied to any app consuming this SDK
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# Keep Neo SDK Call internal classes
+-keep class cc.neo.sdkcall.** { *; }
+-dontwarn cc.neo.sdkcall.**
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# Keep WebRTC classes to avoid JNI UnsatisfiedLinkError
+-keep class org.webrtc.** { *; }
+-dontwarn org.webrtc.**
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# Keep Socket.IO and Engine.IO
+-keep class io.socket.** { *; }
+-dontwarn io.socket.**
+-keep class engine.io.** { *; }
+
+# Keep Retrofit and OkHttp
+-dontwarn okhttp3.**
+-dontwarn okio.**
+-dontwarn retrofit2.**
+-keepattributes Signature
+-keepattributes Exceptions
+-keepclasseswithmembers interface * {
+    @retrofit2.http.* <methods>;
+}
+
+# Keep Gson SerializedName annotations for data classes
+-keepattributes *Annotation*
+-keepclassmembers class * {
+    @com.google.gson.annotations.SerializedName <fields>;
+}
+
+# (Optional) Keep App specific models if they don't use @SerializedName
+# But usually app developers will add their own rules for their models.

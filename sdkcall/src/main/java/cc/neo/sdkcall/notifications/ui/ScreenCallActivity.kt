@@ -999,8 +999,13 @@ fun CallScreen(
                         CallAvatar(avatarUrl)
                         Spacer(modifier = Modifier.height(24.dp))
 
+                        val defaultName = metaData["call_name_title"] ?: "Call INA"
+                        val displayName = callerName
+                            .takeIf { it.isNotBlank() }
+                            ?: defaultName
+
                         Text(
-                            text = if (metaData["call_name_title"]?.isBlank() == true) callerName else metaData["call_name_title"] ?: callerName,
+                            text = displayName,
                             style = MaterialTheme.typography.headlineMedium.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
                             color = Color.White
                         )
