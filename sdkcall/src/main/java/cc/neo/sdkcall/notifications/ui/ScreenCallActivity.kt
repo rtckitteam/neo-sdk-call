@@ -921,7 +921,7 @@ class ScreenCallActivity :
             state
         }
         if (connectionState == "lost") {
-                hangup()
+            hangup()
         }
     }
 
@@ -1114,7 +1114,7 @@ fun CallScreen(
                     ) {
                         RoundIconButton(
                             icon = Icons.Filled.CallEnd,
-                            label = metaData["call_end"] ?: "Akhiri Panggilan",
+                            label = (metaData["call_btn_hangup"] ?: metaData["call_hangup"] ?: "Akhiri Panggilan").toString(),
                             onClick = onEndCallClick,
                             backgroundColor = Color.Red,
                             iconTint = Color.White,
