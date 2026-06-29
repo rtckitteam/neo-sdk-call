@@ -188,6 +188,8 @@ class SocketManager {
             callStateListener?.onCallStateChanged(CallState.RINGING)
         }
 
+
+
         // Ringing event sent to callee to indicate incoming call
         socket?.on("REJECTED") { _ ->
             callStateListener?.onCallStateChanged(CallState.REFUSED)

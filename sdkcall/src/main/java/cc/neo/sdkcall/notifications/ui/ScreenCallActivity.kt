@@ -18,6 +18,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.text.format.DateUtils.formatElapsedTime
 import android.util.Log
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
@@ -165,11 +166,11 @@ class ScreenCallActivity :
         "call_connecting" to "Menghubungkan...",
         "call_ringing" to "Ringing...",
         "call_refused" to "Decline",
-        "call_end" to "Akhiri Panggilan",
+        "call_end" to "Panggilan Berakhir",
         "call_incoming" to "Incoming",
         "call_temporarily_unavailable" to "Currently unreachable",
-//        "call_lost_connection" to "Connection lost",
-        "call_weak_signal" to "Weak Signal",
+        "call_lost_connection" to "Koneksi Terputus",
+        "call_weak_signal" to "Koneksi Tidak Stabil",
         "call_connected" to "Terhubung",
         "call_name_title" to "Call INA",
         "call_btn_message" to "Send Message",
@@ -759,7 +760,14 @@ class ScreenCallActivity :
                     callTimer = timerText,
                     callStatusRaw = callStatusRaw,
                     statusText = (metaData["call_$callStatusRaw"] ?: callStatusRaw).toString(),
-                    signalState = if (connectionState == "connected") "" else connectionState,
+//                    signalState = if (connectionState == "connected") "" else connectionState,
+//                    signalState = when (connectionState) {
+                    signalState = when (connectionState) {
+                        "connected" -> ""
+                        "lost" -> "call_lost_connection"
+                        "weak" -> "call_weak_signal"
+                        else -> connectionState
+                    },
                     avatarUrl = if (callType == "incoming") callerAvatar else calleeAvatar,
                     isMicMuted,
                     isSpeakerOn,
@@ -830,7 +838,8 @@ class ScreenCallActivity :
 
 
     override fun onConnectionStateChanged(state: PeerConnection.PeerConnectionState) {
-
+//        eventListener.onConnectionStateChanged(state)
+        Log.i("SDK CALL CONNECTION", state.toString())
     }
 
     override fun onTimeTicketUpdate(seconds: Long) {
@@ -912,7 +921,7 @@ class ScreenCallActivity :
             state
         }
         if (connectionState == "lost") {
-            hangup()
+                hangup()
         }
     }
 
