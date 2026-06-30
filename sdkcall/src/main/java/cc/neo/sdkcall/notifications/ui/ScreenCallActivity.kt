@@ -764,7 +764,7 @@ class ScreenCallActivity :
 //                    signalState = when (connectionState) {
                     signalState = when (connectionState) {
                         "connected" -> ""
-                        "lost" -> "call_lost_connection"
+                        "lost" -> ""
                         "weak" -> "call_weak_signal"
                         else -> connectionState
                     },
@@ -1248,7 +1248,7 @@ fun DefaultPreview() {
             "00:23",
             "connected",
             "Terhubung",
-            signalState = "call_lost_connection",
+            signalState = "",
             "",
             isMicMuted = true,
             isSpeakerOn = false,

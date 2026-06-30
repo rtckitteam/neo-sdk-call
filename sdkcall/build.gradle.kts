@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "cc.neo.sdkcall"
-    version = "1.2.1-rc.18"
+    version = "1.2.1-rc.19"
     compileSdk = 35
 
     defaultConfig {

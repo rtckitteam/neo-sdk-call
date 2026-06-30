@@ -67,7 +67,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     //implementation("com.github.neoteam:neo-sdk-rtc:1.2.1-rc.6")
-//    implementation("com.github.rtckitteam:neo-sdk-call:1.2.1-rc.17")
+//    implementation("com.github.rtckitteam:neo-sdk-call:1.2.1-rc.18")
 
     implementation(project(":sdkcall"))
     implementation(libs.androidx.activity)
