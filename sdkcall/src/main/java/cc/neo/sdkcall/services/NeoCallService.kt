@@ -709,6 +709,7 @@ fun hangup() {
     }
 
     override fun onIceConnectionStateChanged(state: PeerConnection.IceConnectionState) {
+        if (isClosed) return
         when (state) {
             PeerConnection.IceConnectionState.CONNECTED -> {
                 reconnectAttempt = 0

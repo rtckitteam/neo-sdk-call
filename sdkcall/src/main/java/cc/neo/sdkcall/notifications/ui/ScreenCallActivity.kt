@@ -162,15 +162,15 @@ class ScreenCallActivity :
     private var metaData: HashMap<*, *> = hashMapOf(
         "call_title" to "Free Call",
         "call_busy" to "The customer is busy and cannot be reached",
-        "call_calling" to "Menghubungi...",
-        "call_connecting" to "Menghubungkan...",
+        "call_calling" to "Menghubungi",
+        "call_connecting" to "Menghubungkan",
         "call_ringing" to "Ringing...",
         "call_refused" to "Decline",
         "call_end" to "Panggilan Berakhir",
         "call_incoming" to "Incoming",
         "call_temporarily_unavailable" to "Currently unreachable",
-        "call_lost_connection" to "Koneksi Terputus",
-        "call_weak_signal" to "Koneksi Tidak Stabil",
+        "call_lost_connection" to "Panggilan Terputus",
+        "call_weak_signal" to "Koneksi tidak stabil",
         "call_connected" to "Terhubung",
         "call_name_title" to "Call INA",
         "call_btn_message" to "Send Message",
@@ -231,6 +231,8 @@ class ScreenCallActivity :
     private var showErrorDialog by mutableStateOf(false)
     private var isSystemError by mutableStateOf(false)
     private var isOutgoingCall by mutableStateOf(false)
+    private var isConnectionLost = false
+    private var networkLostJob: Job? = null
 
     private lateinit var networkObserver: NetworkObserver
 
@@ -635,12 +637,30 @@ class ScreenCallActivity :
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         networkObserver = NetworkObserver(this) { isConnected ->
-            if (!isConnected) {
-                callEventListener?.onError(100, "No internet connection")
-                onNetworkError(
-                    state = (metaData["call_failed_no_connection"]
-                        ?: "No internet connection") as String, systemError = false
-                )
+            if (isConnected) {
+                networkLostJob?.cancel()
+                if (connectionState == "reconnecting") {
+                    connectionState = ""
+                }
+            } else {
+                val isCallActive = callService?.callState?.value == "connected"
+                if (!isCallActive) {
+                    callEventListener?.onError(100, "No internet connection")
+                    onNetworkError(
+                        state = (metaData["call_failed_no_connection"]
+                            ?: "No internet connection") as String, systemError = false
+                    )
+                } else {
+                    connectionState = "reconnecting"
+                    networkLostJob?.cancel()
+                    networkLostJob = lifecycleScope.launch {
+                        delay(10000) // wait 10 seconds for reconnection
+                        if (callService?.callState?.value == "connected") {
+                            isConnectionLost = true
+                            callService?.hangup()
+                        }
+                    }
+                }
             }
         }
 
@@ -755,17 +775,26 @@ class ScreenCallActivity :
             val callStatusRaw by viewModel.callStatusRaw.collectAsState()
             Box(modifier = Modifier.fillMaxSize()) {
                 val timerText = if (callStatusRaw == "connected") formatElapsedTime(timeTicker) else ""
+                val currentStatusText = when {
+                    (callStatusRaw == "end" || callStatusRaw == "Panggilan Berakhir" || callStatusRaw == "Koneksi Terputus" || callStatusRaw == "Panggilan Terputus") &&
+                            (isConnectionLost || connectionState == "reconnecting" || connectionState == "weak" || connectionState == "lost" || !checkInternetConnection()) -> {
+                        (metaData["call_lost_connection"] ?: "Panggilan Terputus").toString()
+                    }
+                    else -> {
+                        (metaData["call_$callStatusRaw"] ?: callStatusRaw).toString()
+                    }
+                }
                 CallScreen(
                     callerName = if (callType == "incoming") callerName else calleeName,
                     callTimer = timerText,
                     callStatusRaw = callStatusRaw,
-                    statusText = (metaData["call_$callStatusRaw"] ?: callStatusRaw).toString(),
+                    statusText = currentStatusText,
 //                    signalState = if (connectionState == "connected") "" else connectionState,
 //                    signalState = when (connectionState) {
                     signalState = when (connectionState) {
                         "connected" -> ""
                         "lost" -> ""
-                        "weak" -> "call_weak_signal"
+                        "weak", "reconnecting" -> "call_weak_signal"
                         else -> connectionState
                     },
                     avatarUrl = if (callType == "incoming") callerAvatar else calleeAvatar,
@@ -824,6 +853,7 @@ class ScreenCallActivity :
         callService?.stopSelf()
         incomingService?.stopSelf()
         callService?.cancelCall()*/
+        networkLostJob?.cancel()
         if (bound) {
             callService?.forceStop()
             unbindService(callServiceConnection)
@@ -875,7 +905,9 @@ class ScreenCallActivity :
         // } else
         if (callState == CallState.TIMEOUT || callState == CallState.END || callState == CallState.REFUSED || callState == CallState.BUSY) {
 
-            if (callState == CallState.TIMEOUT) {
+            if (isConnectionLost || !checkInternetConnection()) {
+                viewModel.updateState((metaData["call_lost_connection"] ?: "Panggilan Terputus").toString())
+            } else if (callState == CallState.TIMEOUT) {
                 viewModel.updateState(metaData["call_end"].toString())
             } else {
                 viewModel.updateState(metaData["call_"+callState.name.lowercase()].toString())
@@ -915,13 +947,21 @@ class ScreenCallActivity :
 
     override fun onSignalStateChanged(state: String) {
         if (state == "") return
-        connectionState = if (callService?.callState == MutableStateFlow("connected")) {
+        connectionState = if (callService?.callState?.value == "connected") {
             if (state == "connected") "" else state
         } else {
             state
         }
         if (connectionState == "lost") {
-            hangup()
+            isConnectionLost = true
+            if (bound && callService != null) {
+                callService?.hangup()
+            } else {
+                viewModel.updateState((metaData["call_lost_connection"] ?: "Koneksi Terputus").toString())
+                Handler(Looper.getMainLooper()).postDelayed({
+                    finish()
+                }, 2000)
+            }
         }
     }
 
@@ -1021,20 +1061,18 @@ fun CallScreen(
                     }
 
 
-                    if (callTimer.isNotBlank()) {
-                        Text(
-                            text = callTimer,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = Color.White
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                    }
+                    Text(
+                        text = if (callTimer.isNotBlank()) callTimer else " ",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = if (callTimer.isNotBlank()) Color.White else Color.Transparent
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
                     if (signalState.isNotBlank()) {
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = metaData[signalState] ?: signalState,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color(0xFFFFB3B3)
+                            color = Color.White
                         )
                     }
 

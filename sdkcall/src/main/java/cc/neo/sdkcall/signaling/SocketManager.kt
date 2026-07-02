@@ -29,6 +29,7 @@ class SocketManager {
 
     private var webRTCManager: WebRTCManager? = null
     private var disconnectCount: Int = 0
+    private var isManualDisconnect = false
 
     private var connectStartTime: Long = 0
     private var pingStartTime: Long = 0
@@ -54,6 +55,7 @@ class SocketManager {
      */
     fun connect(wssUrl: String, token: String) {
         //Log.i("SDK Call", "Connecting to $wssUrl")
+        isManualDisconnect = false
         val opts = IO.Options().apply {
             query = "token=$token"
             reconnection = true
@@ -84,6 +86,9 @@ class SocketManager {
         socket?.on(Socket.EVENT_DISCONNECT) {
             disconnectCount++
             if (disconnectCount > 1) {
+                if (!isManualDisconnect) {
+                    connectionStateListener?.onSignalStateChanged("lost")
+                }
                 callStateListener?.onCallStateChanged(CallState.END)
                 this.disconnect()
             }
@@ -95,8 +100,10 @@ class SocketManager {
             if (error.toString() == "io.socket.engineio.client.EngineIOException: websocket error") {
                 socket?.connect()
             } else {
+                if (!isManualDisconnect) {
+                    connectionStateListener?.onSignalStateChanged("lost")
+                }
                 callStateListener?.onCallStateChanged(CallState.END)
-
                 this.disconnect()
             }
         }
@@ -249,6 +256,7 @@ class SocketManager {
      * Disconnects the WebSocket connection.
      */
     fun disconnect() {
+        isManualDisconnect = true
         socket?.disconnect()
     }
 }
